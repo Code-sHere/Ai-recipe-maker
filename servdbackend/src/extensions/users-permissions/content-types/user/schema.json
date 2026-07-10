@@ -83,7 +83,7 @@
     "subscriptionTier": {
       "type": "enumeration",
       "enum": [
-        "free ",
+        "free",
         "pro"
       ]
     },
