@@ -76,7 +76,7 @@ export async function getAreas() {
 export async function getMealsByCategory(category) {
 
     try {
-        const res = await fetch (`${MEALDB_BASE}/filter.php?a=${category}`,{
+        const res = await fetch (`${MEALDB_BASE}/filter.php?c=${category}`,{
             next: {revalidate : 86400},//cache for 1 day
         });
 
@@ -88,7 +88,7 @@ export async function getMealsByCategory(category) {
         return {
             success: true,
             meals: data.meals || [],
-            area,
+            category,
         };
 
     } catch (error) {
@@ -101,7 +101,7 @@ export async function getMealsByCategory(category) {
 export async function getMealsByArea(area) {
 
     try {
-        const res = await fetch (`${MEALDB_BASE}/filter.php?c=${area}`,{
+        const res = await fetch (`${MEALDB_BASE}/filter.php?a=${area}`,{
             next: {revalidate : 86400},//cache for 1 day
         });
 
@@ -113,7 +113,7 @@ export async function getMealsByArea(area) {
         return {
             success: true,
             meals: data.meals || [],
-            category,
+            area,
         };
 
     } catch (error) {
