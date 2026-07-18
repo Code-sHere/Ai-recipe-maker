@@ -14,7 +14,7 @@ import { SITE_STATS, FEATURES, HOW_IT_WORKS_STEPS } from "@/lib/data";
 export default async function Home() {
 
   const { has } = await auth();
-  const subscriptionTier = has({ plan: "pro" }) ? "pro" : "free";
+  const subscriptionTier = has({ plan: "pro_plan" }) ? "Pro" : "Free";
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
@@ -43,9 +43,11 @@ export default async function Home() {
                 >Start Cooking Free <ArrowRight className="ml-2 w-5 h-5" /></Button>
               </Link>
 
+              
+
               <p className="mt-5 text-sm text-stone-500">
                 <span className="font-bold text-stone-900">10k+ Cooks</span>{" "}
-                joined last month
+                joined last month {subscriptionTier}
               </p>
             </div>
             <Card className={"relative aspect-square md:aspect-4/5 border-4 border-stone-900 bg-stone-200 overflow-hidden py-0"}>

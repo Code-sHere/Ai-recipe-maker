@@ -12,7 +12,6 @@ import { Badge } from './ui/badge'
 
 const Header = async () => {
   const user = await checkUser();
-  // console.log('user', user?.subscriptionTier);
 
   return (
     <div>

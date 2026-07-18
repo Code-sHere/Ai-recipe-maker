@@ -8,9 +8,11 @@ const useFetch = (cb) => {
 
   const fetchData = async (...args) => {
     setLoading(true);
+    setError(null);
     try {
       const response = await cb(...args); // already the parsed object
       setData(response);
+      setError(null);
     } catch (error) {
       setError(error);
       toast.error(error.message);

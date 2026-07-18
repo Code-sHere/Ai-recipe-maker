@@ -16,7 +16,7 @@ export async function checkUser() {
     }
 
     const {has} = await auth();
-    const subscriptionTier = has({plan: "pro"}) ? "pro" : "free";
+    const subscriptionTier = has({plan: "pro"}) ? "Pro" : "Free";
 
     const email = clerkUser.emailAddresses[0].emailAddress;
 
@@ -122,7 +122,7 @@ export async function checkUser() {
 
                 imageUrl: clerkUser.imageUrl || "",
 
-                subscriptionTier,
+                subscriptionTier: subscriptionTier || "Free",
             }),
         });
 
