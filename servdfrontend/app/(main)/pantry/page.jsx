@@ -73,8 +73,9 @@ const Pantrypage = () => {
                             Add to Pantry
                         </Button>
 
-                        {itemsData?.scansLimit !== undefined && (
-                            <div>
+                    </div>
+                    {itemsData?.scansLimit !== undefined && (
+                            <div className="bg-white py-3 px-4 border-2 border-stone-200 inline-flex items-center gap-3">
                                 <Sparkles className="w-5 h-5 text-orange-600" />
                                 <div className="text-sm">
                                     {
@@ -90,8 +91,6 @@ const Pantrypage = () => {
                                 </div>
                             </div>
                         )}
-
-                    </div>
                 </div>
                 {/* Quick Action card - find recipes */}
 

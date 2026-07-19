@@ -1082,7 +1082,7 @@ export interface PluginUsersPermissionsUser
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    clerkID: Schema.Attribute.String &
+    clerkId: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
@@ -1125,7 +1125,7 @@ export interface PluginUsersPermissionsUser
       'oneToMany',
       'api::saved-recipe.saved-recipe'
     >;
-    subscriptionTier: Schema.Attribute.Enumeration<['Free', 'Pro']>;
+    subscriptionTier: Schema.Attribute.Enumeration<['free', 'pro']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
