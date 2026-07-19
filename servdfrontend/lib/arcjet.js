@@ -10,10 +10,10 @@ export const aj = arcjet({
 export const freePantryScans = aj.withRule(
     tokenBucket({
         mode:"LIVE",
-        chracteristic:["userId"],
+        characteristics:["userId"],
         refillRate:10,
         interval:"30d",
-        capcaity:10,
+        capacity:10,
     })
 )
 
@@ -22,10 +22,10 @@ export const freePantryScans = aj.withRule(
 export const freeMealRecommendation = aj.withRule(
     tokenBucket({
         mode:"LIVE",
-        chracteristic:["userId"],
+        chracteristics:["userId"],
         refillRate:5,
         interval:"30d",
-        capcaity:5,
+        capacity:5,
     })
 )
 
@@ -36,9 +36,9 @@ export const freeMealRecommendation = aj.withRule(
 export const proTierLimit = aj.withRule(
     tokenBucket({
         mode:"LIVE",
-        chracteristic:["userId"],
+        chracteristics:["userId"],
         refillRate:1000,
         interval:"1d",
-        capcaity:1000,
+        capacity:1000,
     })
 )

@@ -8,6 +8,8 @@ import AddToPantryModal from '@/components/AddToPantryModal'
 import useFetch from '@/hooks/use-fetch'
 import { deletePantryItem, getPantryItems, UpdatePantryItem } from '@/actions/pantry.actions'
 import PricingModal from '@/components/PricingModal'
+import {Sparkles} from 'lucide-react'
+
 
 const Pantrypage = () => {
 

@@ -18,6 +18,8 @@ export default async function Home() {
   const user = await auth();
   const subscriptionTier = has({ plan: "pro_plan" }) ? "Pro" : "Free";
 
+  console.log(user);
+
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
       <section className="pt-32 pb-20 px-4">
