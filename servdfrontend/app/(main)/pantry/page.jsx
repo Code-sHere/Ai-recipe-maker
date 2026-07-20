@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge, Edit2, Loader2, Package, Trash2 } from 'lucide-react'
+import { Badge, Check, Edit2, Loader2, Package, Trash2, X } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
@@ -10,6 +10,7 @@ import { deletePantryItem, getPantryItems, UpdatePantryItem } from '@/actions/pa
 import PricingModal from '@/components/PricingModal'
 import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 
 const Pantrypage = () => {
@@ -45,17 +46,56 @@ const Pantrypage = () => {
 
     useEffect(() => {
         if (itemsData?.success) {
+            toast.success("Items fetched successfully");
             setItems(itemsData.items);
         }
     }, [itemsData]);
 
     useEffect(() => {
-        if (deleteData?.success) {
+        if (deleteData?.success && !deleting) {
+            toast.success("Item removed from pantry");
             fetchItems();
         }
     }, [deleteData]);
 
-    const handleModalSuccess = () => { };
+    useEffect(()=>{
+        if(updateData?.success){
+            toast.success("Item updated successfully");
+            setEditingId(null);
+            fetchItems();
+        }
+    },[updateData])
+
+    const handleDelete = async(itemId) => {
+        const formData = new FormData();
+        formData.append("itemId", itemId);
+        await deleteItem(formData);
+    };
+
+    const startEdit = (item) =>{
+        setEditingId(item.documentId);
+        setEditValues({
+            name: item.name,
+            quantity: item.quantity
+        })
+    }
+
+    const saveEdit = async () =>{
+        const formData = new FormData();
+        formData.append("itemId", editingId);
+        formData.append("name", editValues.name);
+        formData.append("quantity", editValues.quantity);
+        await updateItem(formData);
+    }
+
+    const cancelEdit = () =>{
+        setEditingId(null);
+        setEditValues({ name: "", quantity: "" });
+    }
+
+    const handleModalSuccess = () => { 
+        fetchItems();
+    };
 
     return (
         <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4" >
@@ -145,40 +185,97 @@ const Pantrypage = () => {
                             </Badge>
                         </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {items.map((item) => {
+                            {items.map((item) => (
                                 <div key={item.documentId}
                                     className="bg-white p-5 border-2 border-stone-200 hover:border-orange-600 hover:shadow-lg transition-all">
-                                    {editingId === item.documentId ? <div></div> : <div className="flex-1">
-                                        <h3 className="font-bold text-lg text-stone-900 mb-1 ">
-                                            {item.name}
-                                        </h3>
-                                        <p classname="text-stone-500 text-sm font-light">{item.quantity}</p>
-                                        <button
-                                            onClick={() => startEdit(item)}
-                                            className="p-2 border-2 border-transparent hover:border-orange-600 hover:bg-orange-50 transition-all text-stone-600 hover:text-orange-600">
-                                            <Edit2 className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(item.documentId)}
-                                            className='p-2 border-2 border-transparent hover:border-red-600 hover:bg-orange-50 transition-all text-stone-600 hover:text-red-600'>
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>}
+                                    {editingId === item.documentId ? <div className="space-y-3">
+                                        <input type="text" 
+                                            value={editValues.name}
+                                            onChange={(e)=>{
+                                                setEditValues({
+                                                    ...editValues, name: e.target.value
+                                                })
+                                            }}
+                                            className="w-full px-3 py-2 border-2 border-stone-200 focus:outline-none focus:border-orange-600 text-sm"
+                                            placeholder="Ingredient Name"
+                                        />
+
+                                        <input type="text" 
+                                            value={editValues.quantity}
+                                            onChange={(e)=>{
+                                                setEditValues({
+                                                    ...editValues, quantity: e.target.value
+                                                })
+                                            }}
+                                            className="w-full px-3 py-2 border-2 border-stone-200 focus:outline-none focus:border-orange-600 text-sm"
+                                            placeholder="Ingredient Name"
+                                        />
+
+                                        <div className="flex gap-2">
+
+                                            <Button
+                                                size="sm"
+                                                onClick={saveEdit}
+                                                disabled={updating}
+                                                className="flex-1 bg-green-600 hover:bg-green-700 border-2 border-green-700"
+                                            >
+                                                {updating ? (<Loader2 className="w-4 h-4 animate-spin" />) : 
+                                                (
+                                                    <Check className="w-4 h-4" />
+                                                )
+                                                }
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                onClick={cancelEdit}
+                                                disabled={updating}
+                                                className="flex-1  
+                                                border-2 border-stone-900 hover:bg-stone-900
+                                                hover:text-white hover:border-stone-900"
+                                            >
+                                                <X className='w-4 h-4' />
+                                            </Button>
+                                        </div>
+
+                                    </div> : <div className=" flex items-start justify-between mb-3">
+                                        <div className="flex-1">
+                                            <h3 className="font-bold text-lg text-stone-900 mb-1 ">
+                                                {item.name}
+                                            </h3>
+                                            <p classname="text-stone-500 text-sm font-light">{item.quantity}</p>
+                                            <button
+                                                onClick={() => startEdit(item)}
+                                                className="p-2 border-2 border-transparent hover:border-orange-600 hover:bg-orange-50 transition-all text-stone-600 hover:text-orange-600">
+                                                <Edit2 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(item.documentId)}
+                                                className='p-2 border-2 border-transparent hover:border-red-600 hover:bg-orange-50 transition-all text-stone-600 hover:text-red-600'>
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                        <div className="text-xs text-stone-400">
+                                            Added {new Date(item.createdAt).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    }
                                 </div>
-                            })}
+                            ))}
                         </div>
                     </div>
                 )}
 
                 {/* empty state */}
                 {!loadingItems && items.length === 0 && (
-                    <div classname="bg-white p-12 text-center border-2 border-dashed border-stone-200">
-                        <div className="bg-orange-100 w-20 h-20 border-2 border-orange-200 flex itmes-center justify-center mx-auto mb-6">
-                            <Package className="w-10 h-10 text-orange-600" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-stone-900" mb-2>
+                    <div classname=" bg-white p-12 text-center border-2 border-dashed border-stone-200">
+                        
+                        <h3 className="text-2xl font-bold text-stone-900 mb-2 mt-5 md:text-3xl">
                             Your Pantry is Empty
                         </h3>
+                        <div className="bg-orange-100 w-20 h-20 border-2 border-orange-200 flex itmes-center justify-center mx-auto mb-6">
+                            <Package className="w-10 h-20 text-orange-600" />
+                        </div>
                     </div>
                 )}
 
