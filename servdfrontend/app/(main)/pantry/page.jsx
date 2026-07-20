@@ -1,6 +1,6 @@
 "use client"
 
-import { Badge, Loader2, Package } from 'lucide-react'
+import { Badge, Edit2, Loader2, Package, Trash2 } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
@@ -8,7 +8,7 @@ import AddToPantryModal from '@/components/AddToPantryModal'
 import useFetch from '@/hooks/use-fetch'
 import { deletePantryItem, getPantryItems, UpdatePantryItem } from '@/actions/pantry.actions'
 import PricingModal from '@/components/PricingModal'
-import {Sparkles} from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
 
@@ -17,16 +17,16 @@ const Pantrypage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [items, setItems] = useState([]);
     const [editingId, setEditingId] = useState(null);
-    const [editValues, setEditValues] = useState({name: "", quantity: ""});
+    const [editValues, setEditValues] = useState({ name: "", quantity: "" });
 
     // fetching the items
-    const {loading: loadingItems,
+    const { loading: loadingItems,
         data: itemsData,
         fetchData: fetchItems,
     } = useFetch(getPantryItems);
 
     // deleting the items
-    const {loading: deleting,
+    const { loading: deleting,
         data: deleteData,
         fetchData: deleteItem,
     } = useFetch(deletePantryItem);
@@ -39,23 +39,23 @@ const Pantrypage = () => {
     } = useFetch(UpdatePantryItem);
 
     //load itmes on mount
-    useEffect(()=>{
+    useEffect(() => {
         fetchItems();
     }, []);
 
-    useEffect(()=>{
-        if(itemsData?.success){
+    useEffect(() => {
+        if (itemsData?.success) {
             setItems(itemsData.items);
         }
-    },[itemsData]);
+    }, [itemsData]);
 
-    useEffect(()=>{
-        if(deleteData?.success){
+    useEffect(() => {
+        if (deleteData?.success) {
             fetchItems();
         }
-    },[deleteData]);
+    }, [deleteData]);
 
-    const handleModalSuccess = () =>{};
+    const handleModalSuccess = () => { };
 
     return (
         <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4" >
@@ -69,31 +69,31 @@ const Pantrypage = () => {
                                 <p className="text-stone-600 font-light ">Mange your ingredients and discover what youb can cook</p>
                             </div>
                         </div>
-                        <Button 
-                        onClick={()=>setIsModalOpen(true)}
-                        className="hidden md:flex mr-50" size="lg">
+                        <Button
+                            onClick={() => setIsModalOpen(true)}
+                            className="hidden md:flex mr-50" size="lg">
                             <Plus className="mr-2 w-5 h-5" />
-                            Add to Pantry 
+                            Add to Pantry
                         </Button>
 
                     </div>
                     {itemsData?.scansLimit !== undefined && (
-                            <div className="bg-white py-3 px-4 border-2 border-stone-200 inline-flex items-center gap-3">
-                                <Sparkles className="w-5 h-5 text-orange-600" />
-                                <div className="text-sm">
-                                    {
-                                        itemsData.scansLimit === "unlimited" ? (<>
-                                            <span className="font-bold text-green-600">∞</span>
-                                            <span classname="text-stone-500">{" "}Unlimited AI Scans (pro Plan)</span> 
-                                        </>): (
-                                            <PricingModal>
-                                                <span className="text-stone-500 cursor-pointer"> Upgrade to Pro for unlimited pantry scans</span>
-                                            </PricingModal>
-                                        )
-                                    }
-                                </div>
+                        <div className="bg-white py-3 px-4 border-2 border-stone-200 inline-flex items-center gap-3">
+                            <Sparkles className="w-5 h-5 text-orange-600" />
+                            <div className="text-sm">
+                                {
+                                    itemsData.scansLimit === "unlimited" ? (<>
+                                        <span className="font-bold text-green-600">∞</span>
+                                        <span classname="text-stone-500">{" "}Unlimited AI Scans (pro Plan)</span>
+                                    </>) : (
+                                        <PricingModal>
+                                            <span className="text-stone-500 cursor-pointer"> Upgrade to Pro for unlimited pantry scans</span>
+                                        </PricingModal>
+                                    )
+                                }
                             </div>
-                        )}
+                        </div>
+                    )}
                 </div>
                 {/* Quick Action card - find recipes */}
 
@@ -105,7 +105,7 @@ const Pantrypage = () => {
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-bold text-xl mb-1">
-                                    What Can I Cook Today? 
+                                    What Can I Cook Today?
                                 </h3>
                                 <p>
                                     Get AI-powered recipe suggestions from your {items.length}{" "}ingredients
@@ -122,13 +122,13 @@ const Pantrypage = () => {
 
                 {/* loading state */}
 
-                {loadingItems &&(
+                {loadingItems && (
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="w-12 h-12 text-orange-600 animate-spin mb-4" />
                         <p classname="text-stone-500">Loading your Pantry....</p>
                     </div>
                 )}
-                
+
                 {/* pantry itmes grid */}
 
                 {!loadingItems && items.length > 0 && (
@@ -137,16 +137,39 @@ const Pantrypage = () => {
                             <h2 className="text-2xl fot-bold text-stone-900">
                                 Your Ingredients
                             </h2>
-                            <Badge 
+                            <Badge
                                 variant="outline"
                                 className="text-stone-600 border-2 border-stone-900 font-bold uppercase tracking-wide"
                             >
                                 {items.length} {items.length === 1 ? "item" : "items"}
                             </Badge>
                         </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {items.map((item) => {
+                                <div key={item.documentId}
+                                    className="bg-white p-5 border-2 border-stone-200 hover:border-orange-600 hover:shadow-lg transition-all">
+                                    {editingId === item.documentId ? <div></div> : <div className="flex-1">
+                                        <h3 className="font-bold text-lg text-stone-900 mb-1 ">
+                                            {item.name}
+                                        </h3>
+                                        <p classname="text-stone-500 text-sm font-light">{item.quantity}</p>
+                                        <button
+                                            onClick={() => startEdit(item)}
+                                            className="p-2 border-2 border-transparent hover:border-orange-600 hover:bg-orange-50 transition-all text-stone-600 hover:text-orange-600">
+                                            <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(item.documentId)}
+                                            className='p-2 border-2 border-transparent hover:border-red-600 hover:bg-orange-50 transition-all text-stone-600 hover:text-red-600'>
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>}
+                                </div>
+                            })}
+                        </div>
                     </div>
                 )}
-                
+
                 {/* empty state */}
                 {!loadingItems && items.length === 0 && (
                     <div classname="bg-white p-12 text-center border-2 border-dashed border-stone-200">
@@ -163,8 +186,8 @@ const Pantrypage = () => {
             {/* Add tp pantry modal */}
             <AddToPantryModal
                 isOpen={isModalOpen}
-                onClose={()=> setIsModalOpen(false)}
-                onSuccess={()=>handleModalSuccess}
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={() => handleModalSuccess}
             />
         </div>
     )
