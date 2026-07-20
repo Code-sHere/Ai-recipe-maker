@@ -16,9 +16,8 @@ export default async function Home() {
 
   const { has } = await auth();
   const user = await auth();
-  const subscriptionTier = has({ plan: "pro_plan" }) ? "Pro" : "Free";
+  
 
-  console.log(user);
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
@@ -51,7 +50,7 @@ export default async function Home() {
 
               <p className="mt-5 text-sm text-stone-500">
                 <span className="font-bold text-stone-900">10k+ Cooks</span>{" "}
-                joined last month {subscriptionTier}
+                joined last month
               </p>
             </div>
             <Card className={"relative aspect-square md:aspect-4/5 border-4 border-stone-900 bg-stone-200 overflow-hidden py-0"}>
