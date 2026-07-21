@@ -165,7 +165,7 @@ const Pantrypage = () => {
                 {loadingItems && (
                     <div className="flex flex-col items-center justify-center py-20">
                         <Loader2 className="w-12 h-12 text-orange-600 animate-spin mb-4" />
-                        <p classname="text-stone-500">Loading your Pantry....</p>
+                        <p className="text-stone-500">Loading your Pantry....</p>
                     </div>
                 )}
 
@@ -268,14 +268,13 @@ const Pantrypage = () => {
 
                 {/* empty state */}
                 {!loadingItems && items.length === 0 && (
-                    <div classname=" bg-white p-12 text-center border-2 border-dashed border-stone-200">
-                        
-                        <h3 className="text-2xl font-bold text-stone-900 mb-2 mt-5 md:text-3xl">
-                            Your Pantry is Empty
-                        </h3>
+                    <div className=" bg-white p-12 text-center border-2 border-dashed border-stone-200">
                         <div className="bg-orange-100 w-20 h-20 border-2 border-orange-200 flex itmes-center justify-center mx-auto mb-6">
                             <Package className="w-10 h-20 text-orange-600" />
                         </div>
+                        <h3 className="text-2xl font-bold text-stone-900 mb-2 mt-5 md:text-3xl">
+                            Your Pantry is Empty
+                        </h3>
                     </div>
                 )}
 
