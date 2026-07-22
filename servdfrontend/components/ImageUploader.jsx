@@ -54,7 +54,7 @@ const ImageUploader = ({ onImageSelect, loading }) => {
 
     if (preview) {
         return <div className="relative w-full aspect-video bg-stone-100 rounded-2xl overflow-hidden border-2 border-stone-200">
-            <img src={preview} alt="preview" fill className="object-cover" />
+            <img className="absolute inset-0 w-full h-full object-cover" src={preview} alt="Preview" />
             {!loading && (
                 <button onClick={clearImage}
                     className="absolute top-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all"
