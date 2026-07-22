@@ -9,7 +9,7 @@ import useFetch from '@/hooks/use-fetch'
 import { addPantryItemManually, scanPantryImage, saveToPantry } from '@/actions/pantry.actions'
 import { toast } from 'sonner'
 import { Button } from './ui/button'
-
+import ImageUploader from './ImageUploader'
 
 
 const AddToPantryModal = ({ isOpen, onClose, onSuccess }) => {
@@ -23,11 +23,20 @@ const AddToPantryModal = ({ isOpen, onClose, onSuccess }) => {
 
     const [manualItem, setManualItem] = useState({ name: "", quantity: "" });
 
+    // scanning the image
     const {
         loading: scanning,
         data: scanData,
         fetchData: scanImage,
     } = useFetch(scanPantryImage);
+
+    //updating scanned items
+    useEffect(()=>{
+        if(scanData?.success && scanData?.ingredients){
+            setScannedIngredients(scanData.ingredients);
+            toast.success(`Found ${scanData.ingredients.length} ingredients`);
+        }
+    },[scanData]);
 
     const {
         loading: saving,
@@ -59,6 +68,11 @@ const AddToPantryModal = ({ isOpen, onClose, onSuccess }) => {
         onClose();
     }
 
+    const handleImageSelect = (file) => {
+        setSelectImage(file);
+        setScannedIngredients([]);
+    }
+
     const handleAddManual = async (e)=>{
         e.preventDefault();
         if(!manualItem.name.trim() || !manualItem.quantity.trim()){
@@ -68,6 +82,17 @@ const AddToPantryModal = ({ isOpen, onClose, onSuccess }) => {
         formData.append("name", manualItem.name.trim());
         formData.append("quantity", manualItem.quantity.trim());
         await addManualItem(formData);
+    }
+
+    const handleScan = async (e)=>{
+        e.preventDefault();
+        if(!selectImage){
+            toast.error("Please select an image");
+            return;
+        }
+        const formData = new FormData();
+        formData.append("image", selectImage);
+        await scanImage(formData);
     }
 
     return (
@@ -92,7 +117,29 @@ const AddToPantryModal = ({ isOpen, onClose, onSuccess }) => {
                             Add Manually
                         </TabsTrigger>
                     </TabsList>
-                    <TabsContent value="scan" className="space-y-6 mt-6">Scan an image of your fridge.</TabsContent>
+                    <TabsContent value="scan" className="space-y-6 mt-6">   {scannedIngredients.length === 0 ? <div className="space-y-6 mt-6">
+                        <ImageUploader 
+                            onImageSelect={handleImageSelect}
+                            loading={scanning}
+                        />
+
+                        {selectImage && !scanning && (
+                            <Button onClick={handleScan} 
+                            variant='primary'
+                            className="w-full bg-orange-700 text-white h-12 text-lg" disabled={scanning}>
+                                {scanning ? (
+                                    <>
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin"/>Analyzing...
+                                    </>
+                                ):(
+                                    <>
+                                    <Camera className="w-5 h-5 mr-2"/>Scan Image
+                                    </>
+                                )}
+                            </Button>
+                        )}
+                    </div> : <div></div> }  
+                    </TabsContent>
                     <TabsContent value="manually" className="mt-6"><form onSubmit={handleAddManual} className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-stone-700 mb-2">Ingredient Name</label>
