@@ -22,7 +22,7 @@ export const freePantryScans = aj.withRule(
 export const freeMealRecommendation = aj.withRule(
     tokenBucket({
         mode:"LIVE",
-        chracteristics:["userId"],
+        characteristics:["userId"],
         refillRate:5,
         interval:"30d",
         capacity:5,
@@ -36,7 +36,7 @@ export const freeMealRecommendation = aj.withRule(
 export const proTierLimit = aj.withRule(
     tokenBucket({
         mode:"LIVE",
-        chracteristics:["userId"],
+        characteristics:["userId"],
         refillRate:1000,
         interval:"1d",
         capacity:1000,
