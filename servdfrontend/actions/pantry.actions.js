@@ -11,6 +11,8 @@ const STRAPI_URL =
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
+console.log(process.env.GEMINI_API_KEY?.slice(0, 8))
+
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 
@@ -54,9 +56,9 @@ export async function scanPantryImage(formData) {
         const base64Image = buffer.toString("base64");
 
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash",
+            model: "gemini-3.6-flash",
         })
-        
+
 
         const prompt = `You are a professional chef and ingredient recognition expert. Analyze this image of a pantry/fridge and identify all visible food ingredients.
 
@@ -92,27 +94,27 @@ Rules:
         const response = await result.response;
         const text = await response.text();
 
-        let ingredient;
+        let ingredients;
         try {
             const cleanText = text
                 .replace(/```json/g, "")
                 .replace(/```/g, "")
                 .trim();
-            ingredient = JSON.parse(cleanText);
+            ingredients = JSON.parse(cleanText);
         } catch (error) {
             console.error("Error parsing JSON:", error);
             throw new Error("Error parsing ingredients");
         }
 
-        if (!Array.isArray(ingredient) || ingredient.length === 0) {
+        if (!Array.isArray(ingredients) || ingredients.length === 0) {
             throw new Error("No ingredients found");
         }
 
         return {
             success: true,
-            ingredient: ingredient.slice(0, 20),
+            ingredients: ingredients.slice(0, 20),
             scansLimit: isPro ? "unlimited" : 10,
-            message: `Found${ingredient.length} ingredients!`,
+            message: `Found${ingredients.length} ingredients!`,
         }
 
     } catch (error) {
@@ -159,13 +161,12 @@ export async function saveToPantry(formData) {
 
             const data = await response.json();
             savedItems.push(data.data);
+        }
 
-            return {
-                success: true,
-                savedItems,
-                message: `Saved ${savedItems.length} items to your pantry!`,
-            }
-
+        return {
+            success: true,
+            savedItems,
+            message: `Saved ${savedItems.length} items to your pantry!`,
         }
 
     } catch (error) {

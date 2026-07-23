@@ -3,7 +3,7 @@
 import React, { useState, useEffect} from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-import { Loader2, Plus } from 'lucide-react'
+import { Badge, Check, Loader2, Plus, X } from 'lucide-react'
 import { Camera } from 'lucide-react'
 import useFetch from '@/hooks/use-fetch'
 import { addPantryItemManually, scanPantryImage, saveToPantry } from '@/actions/pantry.actions'
@@ -73,6 +73,31 @@ const AddToPantryModal = ({ isOpen, onClose, onSuccess }) => {
         setScannedIngredients([]);
     }
 
+    const handleSaveScanned = async () =>{
+       if(scannedIngredients.length === 0){
+        toast.error("Please scan an image first");
+        return;
+       }
+
+        const formData = new FormData();
+       formData.append("ingredients", JSON.stringify(scannedIngredients));
+       await saveSacnnedItem(formData);
+    }
+
+    useEffect(()=>{
+        if(saveData?.success){
+            toast.success("Items added to your pantry");
+            handleClose();
+            if (onSuccess)onSuccess();
+        }
+    },[saveData]);
+
+    const removeIngredient = (index) =>{
+        setScannedIngredients(scannedIngredients.filter((_, i) => i !== index));
+    }
+
+
+
     const handleAddManual = async (e)=>{
         e.preventDefault();
         if(!manualItem.name.trim() || !manualItem.quantity.trim()){
@@ -138,11 +163,79 @@ const AddToPantryModal = ({ isOpen, onClose, onSuccess }) => {
                                 )}
                             </Button>
                         )}
-                    </div> : <div></div> }  
+                    </div> : <div className="space-y-4">
+                        <div className='flex items-center justify-between'>
+                            <div>
+                                <h3 className="text-lg font-bold text-stone-900">
+                                    Review Detected Items
+                                </h3>
+                                <p className="text-sm text-stone-500">Found {scannedIngredients.length} ingredients</p>
+                            </div>
+                            <Button
+                                variant='primary'
+                                size="sm"
+                                onClick={()=>{
+                                    setScannedIngredients([]);
+                                    setSelectImage(null);
+                                }}
+                                className="gap-2"
+                            >
+                                <Camera className="w-4 h-4" />
+                                Scan Again
+                            </Button>
+                        </div>
+                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                            {scannedIngredients.map((ingredient, index)=>(
+                                <div key={index}
+                                    className="flex items-center justify-between gap-4 border border-stone-200 rounded-xl px-4 py-3"
+                                >
+                                    <div className="flex-1">
+                                        <div className="font-medium text-stone-900">
+                                            {ingredient.name}
+                                        </div>
+                                        <div className="text-sm text-stone-500">
+                                            {ingredient.quantity}
+                                        </div>
+                                    </div>
+                                    {ingredient.confidence && (
+                                        <Badge variant="outline" className="text-xs text-green-700 border-green-200">
+                                            {Math.round(ingredient.confidence * 100)}%
+                                        </Badge>
+                                    )}
+                                    <Button 
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={()=>removeIngredient(index)}
+                                        className="text-stone-600 hover:text-red-600"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        {/* Save Button */}
+                        <Button
+                            onClick={handleSaveScanned}
+                            disabled={saving || scannedIngredients.length === 0}
+                            className="flex-1 bg-green-600 hover:bg-green-800 text-white h-12 w-full"
+                        >
+                            {saving ? (
+                                <>
+                                <Loader2 className="w-5 h-5 mr-2 animate-spin"/>Saving...
+                                </>
+                            ):(
+                                <>
+                                <Check className='w-5 h-5 mr-2' />
+                                Save {scannedIngredients.length} Items to Pantry
+                                </>
+                            )}
+                        </Button>
+                    </div> }  
                     </TabsContent>
                     <TabsContent value="manually" className="mt-6"><form onSubmit={handleAddManual} className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-stone-700 mb-2">Ingredient Name</label>
+                            <label className="block text-sm font-medium text-stone-700 mb-2">Ingredients Name</label>
                             <input 
                             type="text"
                             value={manualItem.name}

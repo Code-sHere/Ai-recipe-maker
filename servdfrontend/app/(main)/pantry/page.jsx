@@ -124,7 +124,7 @@ const Pantrypage = () => {
                                 {
                                     itemsData.scansLimit === "unlimited" ? (<>
                                         <span className="font-bold text-green-600">∞</span>
-                                        <span classname="text-stone-500">{" "}Unlimited AI Scans (pro Plan)</span>
+                                        <span className="text-stone-500">{" "}Unlimited AI Scans (pro Plan)</span>
                                     </>) : (
                                         <PricingModal>
                                             <span className="text-stone-500 cursor-pointer"> Upgrade to Pro for unlimited pantry scans</span>
@@ -137,7 +137,7 @@ const Pantrypage = () => {
                 </div>
                 {/* Quick Action card - find recipes */}
 
-                {items.length > 0 && <Link href="{/pantry/recipes" className="block mb-8">
+                {items.length > 0 && <Link href="/pantry/recipes" className="block mb-8">
                     <div className="bg-gradient-to-br from-green-600 to-emerald-500 text-white p-6 border-2 border-emerald-700 hover:shadow-xl hover:-translate-y-1 transition-all coursor-pointer rounded-3xl">
                         <div className="flex items-center gap-4">
                             <div className="bg-white/20 p-3 border-2 border-white/30 group-hover:bg-white/30 transition-colors">
@@ -243,7 +243,7 @@ const Pantrypage = () => {
                                             <h3 className="font-bold text-lg text-stone-900 mb-1 ">
                                                 {item.name}
                                             </h3>
-                                            <p classname="text-stone-500 text-sm font-light">{item.quantity}</p>
+                                            <p className="text-stone-500 text-sm font-light">{item.quantity}</p>
                                             <button
                                                 onClick={() => startEdit(item)}
                                                 className="p-2 border-2 border-transparent hover:border-orange-600 hover:bg-orange-50 transition-all text-stone-600 hover:text-orange-600">
