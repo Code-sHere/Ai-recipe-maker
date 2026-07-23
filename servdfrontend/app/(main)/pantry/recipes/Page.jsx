@@ -3,9 +3,10 @@
 import { getRecipesByPantryIngredients } from '@/actions/recipe.actions'
 import React, { useEffect } from 'react'
 import useFetch from '@/hooks/use-fetch'
-import { AlertCircle, ArrowLeft, ChefHat, Loader2, Package, Sparkles} from 'lucide-react'
+import { AlertCircle, ArrowLeft, Badge, ChefHat, Loader2, Package, Sparkles, TrendingUp} from 'lucide-react'
 import Link from 'next/link'
-import { Span } from 'next/dist/trace'
+import PricingModal from '@/components/PricingModal'
+import { Button } from '@base-ui/react'
 
 const PantryRecipesPage = () => {
 
@@ -68,10 +69,10 @@ const PantryRecipesPage = () => {
                     <div>
                         {recipesData.recommendationsLimit === "unlimited" ? (
                             <>
-                            <Span className="text-orange-700 font-light">
+                            <span className="text-orange-700 font-light rounded-full ">
                             {" "}
                             Unlimited AI recommendations (Pro Plan)
-                            </Span>
+                            </span>
                             </>
                         ):(
                             <span className="text-orange-700 font-light">
@@ -97,6 +98,45 @@ const PantryRecipesPage = () => {
 
         {/* recipes grid using recipe grid card component */}
 
+        {!loading && recipes.length > 0 && (
+            <div>
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-2 mb-6">
+                        <TrendingUp className='w-5 h-5 text-green-600'/>
+                        <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4">
+                            Recipe Suggestions
+                        </h2>
+                    </div>
+                    <Badge>
+                        {recipes.length} {recipes.length === 1 ? "Recipe" : "Recipes"}
+                    </Badge>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                    {recipes.map((recipe, index) =>(<RecipeCard key={index} recipe={recipe} variant="pantry" />))}
+                </div>
+
+                <div className="mt-8 text-center">
+                    <Button 
+                        onClick={()=> fetchSuggestions(new FormData())}
+                        variant="outline"
+                        className="border-2 border-stone-900 hover:bg-stone-900 hover:text-white gap-2"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                            <Loader2 className="w-4 h-4animate-spin mr-2" />
+                            <span>Loading...</span>
+                            </>
+                        ) : (<>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            <span>Get new Suggestions</span>
+                        </>)}
+                    </Button>
+                </div>
+            </div>
+        )}
+
         {/* empty pantry state */}
 
         {!loading && recipes.length === 0 && recipesData?.success === false && (
@@ -112,6 +152,25 @@ const PantryRecipesPage = () => {
                 </p>
             </div>    
         )}
+
+     {!loading && recipesData === undefined &&(
+        <div className="bg-linear-to-br from-orange-50 t0-amber-50 p-12 text-center border-2 border-orange-200">
+            <div className="bg-orange-100 w-20 h-20 border-2 border-orange-200 flex items-center justify-center rounded-full mx-auto mb-8">
+                <Sparkles className="w-10 h-10 text-ornage-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-stone-900 mb-4">
+                Monthly Limit Exceeded
+            </h3>
+            <p className="text-stone-500 mb-8 max-w-md mx-auto font-light">
+                You&apos;ve reached your monthly limit of AI recipe suggestions. Upgrade to Pro to get unlimited suggestions!.
+            </p>
+            <PricingModal>
+                <Button className="bg-orange-600 hover:bg-orange-700 text-white gap-3 p-1.5 rounded-2xl w-fit">
+                    <Sparkles className='w-4 h-4'/>    
+                Upgrade to Pro</Button>
+            </PricingModal>
+        </div>
+     )}
       </div>
     </div>
   )
