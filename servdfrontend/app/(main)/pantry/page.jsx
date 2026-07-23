@@ -137,8 +137,8 @@ const Pantrypage = () => {
                 </div>
                 {/* Quick Action card - find recipes */}
 
-                {items.length > 0 && <Link href="/pantry/recipes" className="block mb-8">
-                    <div className="bg-gradient-to-br from-green-600 to-emerald-500 text-white p-6 border-2 border-emerald-700 hover:shadow-xl hover:-translate-y-1 transition-all coursor-pointer rounded-3xl">
+                {items.length > 0 && <Link href={`/pantry/recipes`} className="block mb-8">
+                    <div className="bg-linear-to-br from-green-600 to-emerald-500 text-white p-6 border-2 border-emerald-700 hover:shadow-xl hover:-translate-y-1 transition-all coursor-pointer rounded-3xl">
                         <div className="flex items-center gap-4">
                             <div className="bg-white/20 p-3 border-2 border-white/30 group-hover:bg-white/30 transition-colors">
                                 <ChefHat className="w-8 h-8" />
