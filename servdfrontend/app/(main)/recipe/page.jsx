@@ -3,7 +3,7 @@
 import { getorGenerateRecipe, removeRecipeFromCollection, saveRecipeToCollection } from '@/actions/recipe.actions';
 import useFetch from '@/hooks/use-fetch';
 import { Button } from '@base-ui/react';
-import { AlertCircle, ArrowLeft, BookmarkCheck, Bookmark, Clock, Flame, Loader2, User } from 'lucide-react';
+import { AlertCircle, ArrowLeft, BookmarkCheck, Bookmark, Clock, Flame, Loader2, User, ChefHat, Lightbulb, CheckCircle2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link';
 import Image from 'next/image';
@@ -163,9 +163,11 @@ function RecipeContent() {
         </div>
     }
 
+
+
     return (
         <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4">
-            <div className="container mx-auto max-w-4xl">
+            <div className="container mx-auto max-w-5xl">
                 <div className="mb-8">
                     <Link
                         href="/dashboard"
@@ -254,9 +256,151 @@ function RecipeContent() {
                                     )
                                 }
                             </Button>
+
+                            {/* pdf download button */}
                         </div>
                     </div>
                 </div>
+                <div className="grid lg:grid-cols-3 gap-6">
+                    {/* Left Column - Ingredients & Nutrition */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="bg-white p-6 border-2 border-stone-200 lg:sticky lg:top-24">
+                            <h2 className="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2">
+                                <ChefHat className="w-6 h-6 text-orange-600" />
+                                Ingredients
+                            </h2>
+
+                            {Object.entries(
+                                recipe.ingredients.reduce((acc, ing) => {
+                                    const cat = ing.category || "Other";
+                                    if (!acc[cat]) acc[cat] = [];
+                                    acc[cat].push(ing);
+                                    return acc;
+                                }, {})
+                            ).map(([category, items]) => (
+                                <div key={category} className="mb-6 last:mb-0">
+                                    <h3 className="text-sm font-bold text-stone-500 uppercase tracking-wide mb-3">
+                                        {category}
+                                    </h3>
+
+                                    <ul className="space-y-2">
+                                        {items.map((ingredient, i) => (
+                                            <li
+                                                key={i}
+                                                className="flex justify-center items-center gap-2 text-stone-700 py-2 border-b border-stone-100 last:border-0"
+                                            >
+                                                <span className="flex-1">{ingredient.item}</span>
+                                                <span className="font-bold text-orange-600 text-sm whitespace-nowrap">{ingredient.amount}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ))}
+
+                            {/* nutrition info  */}
+                            {recipe.nutrition && (
+                                <div classNam="mt-6 pt-6 border-t-2 border-stone-200">
+                                    <h3 className="font-bold text-stone-900 mb-3 uppercase tracking-wide text-sm"> Nutrition (per serving)</h3>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="bg-orange-50 p-3 text-center border-2 border-orange-100">
+                                            <div className="text-2xl font-bold text-orange-600">
+                                                {recipe.nutrition.calories}
+                                            </div>
+                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                Calories
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
+                                            <div className="text-2xl font-bold text-stone-900">
+                                                {recipe.nutrition.protein}
+                                            </div>
+                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                Protein
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
+                                            <div className="text-2xl font-bold text-stone-900">
+                                                {recipe.nutrition.carbs}
+                                            </div>
+                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                Carbs
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
+                                            <div className="text-2xl font-bold text-stone-900">
+                                                {recipe.nutrition.fat}
+                                            </div>
+                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                Fat
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    {/* Right Column - Instructions & Tips */}
+                    <div className="lg:col-span-2 space-y-6 ">
+                        <div className="bg-white p-8 border-2 border-stone-200">
+                            <h2 className="text-2xl font-bold text-stone-900 mb-6">Step-by-Step Instructions</h2>
+
+                            <div>
+                                {recipe.instructions.map((step, index) => (
+                                    <div
+                                        key={step.step}
+                                        className={`relative pl-12 pb-8 ${index !== recipe.instructions.length - 1 ? "border-1-2 border-orange-300 ml-5" : "ml-5"
+                                            }`}
+                                    >
+                                        {/* step number */}
+                                        <div
+                                            className='absolute -left-5 top-0 w-10 h-10 bg-orange-600 text-white flex items-center justify-center font-bold border-2 border-orange-800'>{step.step}
+                                        </div>
+
+                                        <div>
+                                            <h3
+                                                className="font-bold text-lg texrt-stone-900 mb-2"
+                                            >{step.title}</h3>
+                                            <p className="text-stone-700 font-light mb-3">
+                                                {step.instruction}
+                                            </p>
+
+                                            {step.tip && (
+                                                <div className="bg-orange-50 border-1-4 border-orange-600 p-4">
+                                                    <p className="text-sm text-orange-900 flex items-start gap-2">
+                                                        <Lightbulb className="w-4 h-4 mt-0.5 flex-shrink-0 fill-orange-600" />
+                                                        <span>
+                                                            <strong className="font-bold">Pro Tip: </strong>{" "}
+                                                            {step.tip}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-8 p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200">
+                                <div className="flex items-start gap-3">
+                                    <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                                    <div>
+                                        <h3 className="font-bold text-green-900 mb-1">
+                                            You&apos;re all done!
+                                        </h3>
+                                        <p className="text-sm text-green-800 font-light">
+                                            Plate your masterpiece and enjoy your delicious{" "}
+                                            {recipe.title}!
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     )
