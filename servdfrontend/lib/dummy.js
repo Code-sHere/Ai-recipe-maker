@@ -191,7 +191,7 @@ export const DUMMY_RECIPE_RESPONSE = {
       },
     ],
 
-    isPublic: true,
+    isPublic: true,   
     createdAt: "2024-01-15T10:30:00Z",
     updatedAt: "2024-01-15T10:30:00Z",
   },

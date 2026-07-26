@@ -3,7 +3,7 @@
 import { getorGenerateRecipe, removeRecipeFromCollection, saveRecipeToCollection } from '@/actions/recipe.actions';
 import useFetch from '@/hooks/use-fetch';
 import { Button } from '@base-ui/react';
-import { AlertCircle, ArrowLeft, BookmarkCheck, Bookmark, Clock, Flame, Loader2, User, ChefHat, Lightbulb, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, BookmarkCheck, Bookmark, Clock, Flame, Loader2, User, ChefHat, Lightbulb, CheckCircle2, CheckCircle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link';
 import Image from 'next/image';
@@ -21,6 +21,8 @@ function RecipeContent() {
     const [recipe, setRecipe] = useState(null);
     const [recipeId, setRecipeId] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
+
+    console.log(recipe);
 
     // get or generate recipe
     const {
@@ -398,6 +400,23 @@ function RecipeContent() {
                                 </div>
                             </div>
                         </div>
+                        <div className="lg:col-span-2 space-y-6 ">
+                            <div className="bg-orange-50 p-8 border-2 border-orange-300">
+                                <div className="flex items-start gap-3 mt-5">
+                                    <Lightbulb className="w-5 h-5 text-orange-600" />
+                                    <h1 className="font-bold text-xl text-stone-900">Chef's Tips & Tricks</h1>
+                                </div>
+                                <div className="flex flex-col gap-2 mt-5">
+                                    {recipe.tips.map((tip, index) => (
+                                        <div key={index}>
+                                            <CheckCircle2 className="w-5 h-5 text-orange-600" />
+                                            {tip}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
 
