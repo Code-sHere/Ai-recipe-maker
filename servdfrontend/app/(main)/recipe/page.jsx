@@ -169,7 +169,7 @@ function RecipeContent() {
 
     return (
         <div className="min-h-screen bg-stone-50 pt-24 pb-16 px-4">
-            <div className="container mx-auto max-w-5xl">
+            <div className="container mx-auto max-w-4xl">
                 <div className="mb-8">
                     <Link
                         href="/dashboard"
@@ -301,7 +301,7 @@ function RecipeContent() {
 
                             {/* nutrition info  */}
                             {recipe.nutrition && (
-                                <div classNam="mt-6 pt-6 border-t-2 border-stone-200">
+                                <div className="mt-6 pt-6 border-t-2 border-stone-200">
                                     <h3 className="font-bold text-stone-900 mb-3 uppercase tracking-wide text-sm"> Nutrition (per serving)</h3>
 
                                     <div className="grid grid-cols-2 gap-3">
@@ -416,7 +416,42 @@ function RecipeContent() {
                                 </div>
                             </div>
                         </div>
-                        
+                        {recipe.substitutions && recipe.substitutions.length > 0 && (
+                            <div className="bg-white p-8 border-2 border-stone-200">
+                                <h2 className="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2">
+                                    Ingredients Substitutions
+                                </h2>
+
+                                <p className="text-stone-600 mb-6 text-sm font-light">
+                                    Don&apos;t have everything? Here are some alternatives you can use.
+                                </p>
+
+                                <div className="space-y-4">
+                                    {recipe.substitutions.map((sub, i) => (
+                                        <div
+                                            key={i}
+                                            className="border-b-2 border-stone-100 pb-4 last:border-0 last:pb-0"
+                                        >
+                                            <h3 className="font-bold text-stone-900 mb-2">
+                                                Instead of{" "}
+                                                <span className="text-orange-600">{sub.original}</span>
+                                                :
+                                            </h3>
+
+                                            <div className="flex flex-wrap gap-2">
+                                                {sub.alternatives.map((alt, j) => (
+                                                    <Badge key={j}
+                                                        variant="outline"
+                                                        className="text-stone-600 border-2 border-stone-200">
+                                                        {alt}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

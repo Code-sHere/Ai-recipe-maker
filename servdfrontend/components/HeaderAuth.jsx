@@ -6,11 +6,16 @@ import { Sparkles } from 'lucide-react'
 import UserDropdown from './UserDropdown'
 import PricingModal from './PricingModal'
 import { Badge } from './ui/badge'
+import HowToCookModel from './HowToCookModel'
 
 const HeaderAuth = ({ user }) => {
   return (
     <div className="flex items-center space-x-4">
       <Show when={'signed-in'}>
+
+        {/* how to cook */}
+        <HowToCookModel/>
+
         {user && (
           <PricingModal subscriptionTier={user.subscriptionTier}>
             <Badge
