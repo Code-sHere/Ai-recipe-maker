@@ -4,20 +4,22 @@ import React, { useState } from 'react'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog'
 import { ChefHat, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 
 
 const HowToCookModel = () => {
 
     const router = useRouter();
-    const [recipeName, setRecipeName] = useState(null);
+    const [recipeName, setRecipeName] = useState("");
     const [isOpen, setIsOpen] = useState(false);
 
 
     const handleOpenChange = (open) => {
         setIsOpen(open);
         if (!open) {
-            recipeName("");
+            setRecipeName("");
         }
 
     }
@@ -37,10 +39,10 @@ const HowToCookModel = () => {
     return (
         <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <button className="hover:text-orange-600 transiton-colors flex items-center gap-1.5 text-sm font-medium text-stone-600">
+                <div className="hover:text-orange-600 transition-colors flex items-center gap-1.5 text-sm font-medium text-stone-600 cursor-pointer">
                     <ChefHat className='w-5 h-5 ' />
                     How To Cook?
-                </button>
+                </div>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
                 <DialogHeader>
@@ -75,14 +77,14 @@ const HowToCookModel = () => {
                         <div className="flex flex-wrap gap-2">
                             {["Butter Chicken", "Chocolate Brownies", "Caesar Salad"].map(
                                 (example) => (
-                                    <button
+                                    <Button
                                         key={example}
                                         type="button"
                                         onClick={() => setRecipeName(example)}
                                         className="px-3 py-1 bg-white text-orange-700 border border-orange-200 rounded-full text-sm hover:bg-orange-100 transition-colors"
                                     >
                                         {example}
-                                    </button>
+                                    </Button>
                                 )
                             )}
                         </div>

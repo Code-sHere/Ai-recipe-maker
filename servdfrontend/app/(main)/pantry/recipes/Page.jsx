@@ -3,10 +3,12 @@
 import { getRecipesByPantryIngredients } from '@/actions/recipe.actions'
 import React, { useEffect } from 'react'
 import useFetch from '@/hooks/use-fetch'
-import { AlertCircle, ArrowLeft, Badge, ChefHat, Loader2, Package, Sparkles, TrendingUp} from 'lucide-react'
+import { AlertCircle, ArrowLeft, ChefHat, Loader2, Package, Sparkles, TrendingUp} from 'lucide-react'
 import Link from 'next/link'
 import PricingModal from '@/components/PricingModal'
-import { Button } from '@base-ui/react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import RecipeCard from '@/components/RecipeCard'
 
 const PantryRecipesPage = () => {
 
@@ -165,7 +167,7 @@ const PantryRecipesPage = () => {
                 You&apos;ve reached your monthly limit of AI recipe suggestions. Upgrade to Pro to get unlimited suggestions!.
             </p>
             <PricingModal>
-                <Button className="bg-orange-600 hover:bg-orange-700 text-white gap-3 p-1.5 rounded-2xl w-fit">
+                <Button variant='primary' className="bg-orange-600 hover:bg-orange-700 text-white  w-fit">
                     <Sparkles className='w-4 h-4'/>    
                 Upgrade to Pro</Button>
             </PricingModal>

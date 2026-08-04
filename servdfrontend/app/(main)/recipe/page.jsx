@@ -1,9 +1,9 @@
 "use client"
-
-import { getorGenerateRecipe, removeRecipeFromCollection, saveRecipeToCollection } from '@/actions/recipe.actions';
 import useFetch from '@/hooks/use-fetch';
-import { Button } from '@base-ui/react';
-import { AlertCircle, ArrowLeft, BookmarkCheck, Bookmark, Clock, Flame, Loader2, User, ChefHat, Lightbulb, CheckCircle2, CheckCircle } from 'lucide-react';
+import { getorGenerateRecipe, removeRecipeFromCollection, saveRecipeToCollection } from '@/actions/recipe.actions';
+import { useAuth } from "@clerk/nextjs";
+import { Button } from '@/components/ui/button';
+import { AlertCircle, ArrowLeft, BookmarkCheck, Bookmark, Clock, Flame, Loader2, User, ChefHat, Lightbulb, CheckCircle2, Download, LogOut } from 'lucide-react';
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link';
 import Image from 'next/image';
@@ -12,6 +12,10 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { ClockLoader } from 'react-spinners';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import { PDFDownloadLink } from '@react-pdf/renderer'
+import { RecipePDF } from "@/components/RecipePdf";
+import LockedWrapper from '@/components/LockedWrapper';
+
 
 function RecipeContent() {
     const searchParams = useSearchParams();
@@ -22,7 +26,12 @@ function RecipeContent() {
     const [recipeId, setRecipeId] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
 
-    console.log(recipe);
+    const { has } = useAuth();
+
+    const isPro = has?.({ plan: "pro_plan" }) ?? false;
+
+
+    console.log(has?.({ plan: "pro_plan" }));
 
     // get or generate recipe
     const {
@@ -30,19 +39,20 @@ function RecipeContent() {
         data: recipeData,
         fetchData: fetchRecipe,
     } = useFetch(getorGenerateRecipe);
+    console.log("fetchRecipe =", fetchRecipe);
 
     // save to collection
     const {
         loading: saving,
         data: saveData,
-        fecthData: saveToCollection,
+        fetchData: saveToCollection,
     } = useFetch(saveRecipeToCollection);
 
     // remove from collection
     const {
         loading: removing,
         data: removeData,
-        fecthData: removeFromCollection,
+        fetchData: removeFromCollection,
     } = useFetch(removeRecipeFromCollection);
 
 
@@ -60,7 +70,7 @@ function RecipeContent() {
     useEffect(() => {
         if (recipeData?.success) {
             setRecipe(recipeData.recipe);
-            setRecipeId(recipeData.recipe.id);
+            setRecipeId(recipeData.recipeId);
             setIsSaved(recipeData.alreadySaved);
 
             if (recipeData.fromDatabase) {
@@ -73,7 +83,7 @@ function RecipeContent() {
 
     useEffect(() => {
         if (saveData?.success) {
-            if (saveData.alreadySaved) {
+            if (saveData.isSaved) {
                 toast.info("Recipe already saved to your collection");
             } else {
                 setIsSaved(true);
@@ -184,7 +194,7 @@ function RecipeContent() {
                             <div className="relative w-full h-72 overflow-hidden mb-6">
                                 <Image
                                     src={recipe.imageUrl}
-                                    alt={recipe.name}
+                                    alt={recipe.name || "Recipe Image"}
                                     fill
                                     className="object-cover"
                                     sizes="(max-width: 768px) 100vw, (max-width:1200px) 80vw, 1200px"
@@ -222,7 +232,7 @@ function RecipeContent() {
 
                             <div className="flex items-center gap-2">
                                 <User className="w-5 h-5 text-orange-600" />
-                                <span className="font-medium">{recipe.servings} servings</span>
+                                <span className="font-medium">{recipe.serving} servings</span>
                             </div>
 
                             {recipe.nutrition?.calories && (
@@ -260,6 +270,23 @@ function RecipeContent() {
                             </Button>
 
                             {/* pdf download button */}
+                            <PDFDownloadLink
+                                document={<RecipePDF recipe={recipe} />}
+                                fileName={`${recipe.title
+                                    .replace(/\s+/g, "-")
+                                    .toLowerCase()}.pdf`}
+                            >
+                                {({ loading }) => (
+                                    <Button
+                                        variant="outline"
+                                        className="border-2 border-orange-600 text-orange-700 hover:bg-orange-50 gap-2"
+                                        disabled={loading}
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        {loading ? "Preparing PDF..." : "Download PDF"}
+                                    </Button>
+                                )}
+                            </PDFDownloadLink>
                         </div>
                     </div>
                 </div>
@@ -273,7 +300,7 @@ function RecipeContent() {
                             </h2>
 
                             {Object.entries(
-                                recipe.ingredients.reduce((acc, ing) => {
+                                (recipe.ingredient || []).reduce((acc, ing) => {
                                     const cat = ing.category || "Other";
                                     if (!acc[cat]) acc[cat] = [];
                                     acc[cat].push(ing);
@@ -300,49 +327,52 @@ function RecipeContent() {
                             ))}
 
                             {/* nutrition info  */}
-                            {recipe.nutrition && (
-                                <div className="mt-6 pt-6 border-t-2 border-stone-200">
-                                    <h3 className="font-bold text-stone-900 mb-3 uppercase tracking-wide text-sm"> Nutrition (per serving)</h3>
 
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="bg-orange-50 p-3 text-center border-2 border-orange-100">
-                                            <div className="text-2xl font-bold text-orange-600">
-                                                {recipe.nutrition.calories}
-                                            </div>
-                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
-                                                Calories
-                                            </div>
-                                        </div>
+                            <LockedWrapper isPro={isPro}>
+                                {recipe.nutrition && (
+                                    <div className="mt-6 pt-6 border-t-2 border-stone-200">
+                                        <h3 className="font-bold text-stone-900 mb-3 uppercase tracking-wide text-sm"> Nutrition (per serving)</h3>
 
-                                        <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
-                                            <div className="text-2xl font-bold text-stone-900">
-                                                {recipe.nutrition.protein}
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="bg-orange-50 p-3 text-center border-2 border-orange-100">
+                                                <div className="text-2xl font-bold text-orange-600">
+                                                    {recipe.nutrition.calories}
+                                                </div>
+                                                <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                    Calories
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
-                                                Protein
-                                            </div>
-                                        </div>
 
-                                        <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
-                                            <div className="text-2xl font-bold text-stone-900">
-                                                {recipe.nutrition.carbs}
+                                            <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
+                                                <div className="text-2xl font-bold text-stone-900">
+                                                    {recipe.nutrition.protein}
+                                                </div>
+                                                <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                    Protein
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
-                                                Carbs
-                                            </div>
-                                        </div>
 
-                                        <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
-                                            <div className="text-2xl font-bold text-stone-900">
-                                                {recipe.nutrition.fat}
+                                            <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
+                                                <div className="text-2xl font-bold text-stone-900">
+                                                    {recipe.nutrition.carbs}
+                                                </div>
+                                                <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                    Carbs
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
-                                                Fat
+
+                                            <div className="bg-stone-50 p-3 text-center border-2 border-stone-100">
+                                                <div className="text-2xl font-bold text-stone-900">
+                                                    {recipe.nutrition.fat}
+                                                </div>
+                                                <div className="text-xs text-stone-500 font-bold uppercase tracking-wide">
+                                                    Fat
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </LockedWrapper>
                         </div>
                     </div>
                     {/* Right Column - Instructions & Tips */}
@@ -351,10 +381,10 @@ function RecipeContent() {
                             <h2 className="text-2xl font-bold text-stone-900 mb-6">Step-by-Step Instructions</h2>
 
                             <div>
-                                {recipe.instructions.map((step, index) => (
+                                {(recipe.instruction || []).map((step, index) => (
                                     <div
                                         key={step.step}
-                                        className={`relative pl-12 pb-8 ${index !== recipe.instructions.length - 1 ? "border-1-2 border-orange-300 ml-5" : "ml-5"
+                                        className={`relative pl-12 pb-8 ${index !== recipe.instruction.length - 1 ? "border-1-2 border-orange-300 ml-5" : "ml-5"
                                             }`}
                                     >
                                         {/* step number */}
@@ -407,16 +437,18 @@ function RecipeContent() {
                                     <h1 className="font-bold text-xl text-stone-900">Chef's Tips & Tricks</h1>
                                 </div>
                                 <div className="flex flex-col gap-2 mt-5">
-                                    {recipe.tips.map((tip, index) => (
-                                        <div key={index}>
-                                            <CheckCircle2 className="w-5 h-5 text-orange-600" />
-                                            {tip}
-                                        </div>
-                                    ))}
+                                    <LockedWrapper isPro={isPro}>
+                                        {recipe.tips.map((tip, index) => (
+                                            <div key={index}>
+                                                <CheckCircle2 className="w-5 h-5 text-orange-600" />
+                                                {tip}
+                                            </div>
+                                        ))}
+                                    </LockedWrapper>
                                 </div>
                             </div>
                         </div>
-                        {recipe.substitutions && recipe.substitutions.length > 0 && (
+                        {recipe.substitution && recipe.substitution.length > 0 && (
                             <div className="bg-white p-8 border-2 border-stone-200">
                                 <h2 className="text-2xl font-bold text-stone-900 mb-4 flex items-center gap-2">
                                     Ingredients Substitutions
@@ -427,28 +459,30 @@ function RecipeContent() {
                                 </p>
 
                                 <div className="space-y-4">
-                                    {recipe.substitutions.map((sub, i) => (
-                                        <div
-                                            key={i}
-                                            className="border-b-2 border-stone-100 pb-4 last:border-0 last:pb-0"
-                                        >
-                                            <h3 className="font-bold text-stone-900 mb-2">
-                                                Instead of{" "}
-                                                <span className="text-orange-600">{sub.original}</span>
-                                                :
-                                            </h3>
+                                    <LockedWrapper isPro={isPro}>
+                                        {recipe.substitution.map((sub, i) => (
+                                            <div
+                                                key={i}
+                                                className="border-b-2 border-stone-100 pb-4 last:border-0 last:pb-0"
+                                            >
+                                                <h3 className="font-bold text-stone-900 mb-2">
+                                                    Instead of{" "}
+                                                    <span className="text-orange-600">{sub.original}</span>
+                                                    :
+                                                </h3>
 
-                                            <div className="flex flex-wrap gap-2">
-                                                {sub.alternatives.map((alt, j) => (
-                                                    <Badge key={j}
-                                                        variant="outline"
-                                                        className="text-stone-600 border-2 border-stone-200">
-                                                        {alt}
-                                                    </Badge>
-                                                ))}
+                                                <div className="flex flex-wrap gap-2">
+                                                    {sub.alternatives.map((alt, j) => (
+                                                        <Badge key={j}
+                                                            variant="outline"
+                                                            className="text-stone-600 border-2 border-stone-200">
+                                                            {alt}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </LockedWrapper>
                                 </div>
                             </div>
                         )}

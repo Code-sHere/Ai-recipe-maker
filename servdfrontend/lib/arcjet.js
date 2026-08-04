@@ -1,8 +1,16 @@
-import arcjet, { tokenBucket } from "@arcjet/next";
+import arcjet, {shield, detectBot, tokenBucket } from "@arcjet/next";
 
 export const aj = arcjet({
     key : process.env.NEXT_PUBLIC_ARCJET_KEY,
-    rules:[],
+    rules:[
+        shield({
+            mode:"LIVE",
+        }),
+        detectBot({
+            mode:"LIVE",
+            allow:["CATEGORY:SEARCH_ENGINE"]
+        })
+    ],
 })
 
 //free tier pantry can limits (10 scans per month)

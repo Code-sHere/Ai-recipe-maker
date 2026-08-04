@@ -1,6 +1,7 @@
 "use client"
 
-import { Badge, Check, Edit2, Loader2, Package, Trash2, X, ChefHat } from 'lucide-react'
+import { Check, Edit2, Loader2, Package, Trash2, X, ChefHat } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'

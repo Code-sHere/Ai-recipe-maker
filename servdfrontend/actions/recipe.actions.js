@@ -73,72 +73,50 @@ export async function getRecipesByPantryIngredients() {
         });
 
         const prompt = `
-You are a professional chef and recipe expert. Generate a detailed recipe for: "${normalizedTitle}"
+You are a professional chef and recipe expert.
 
-CRITICAL: The "title" field MUST be EXACTLY: "${normalizedTitle}" (no changes, no additions like "Classic" or "Easy")
+The user has the following pantry ingredients:
 
-Return ONLY a valid JSON object with this exact structure (no markdown, no explanations):
+${ingredients}
+
+Your task is to suggest exactly 5 recipes that can be made primarily using these ingredients.
+
+Rules:
+- Prefer recipes that use only the available pantry ingredients.
+- If a few common ingredients (salt, pepper, oil, water, sugar) are needed, that's acceptable.
+- Each recipe should be realistic and easy to cook.
+- Do NOT repeat recipes.
+- Include a mix of cuisines whenever possible.
+- Keep descriptions short (1-2 sentences).
+- Prep and cook times must be realistic.
+- Difficulty must be one of: Easy, Medium, Hard.
+
+Return ONLY valid JSON.
+
 {
-  "title": "${normalizedTitle}",
-  "description": "Brief 2-3 sentence description of the dish",
-  "category": "Must be ONE of these EXACT values: breakfast, lunch, dinner, snack, dessert",
-  "cuisine": "Must be ONE of these EXACT values: italian, chinese, mexican, indian, american, thai, japanese, mediterranean, french, korean, vietnamese, spanish, greek, turkish, moroccan, brazilian, caribbean, middle-eastern, british, german, portuguese, other",
-  "prepTime": "Time in minutes (number only)",
-  "cookTime": "Time in minutes (number only)",
-  "servings": "Number of servings (number only)",
-  "ingredients": [
+  "recipes": [
     {
-      "item": "ingredient name",
-      "amount": "quantity with unit",
-      "category": "Protein|Vegetable|Spice|Dairy|Grain|Other"
-    }
-  ],
-  "instructions": [
-    {
-      "step": 1,
-      "title": "Brief step title",
-      "instruction": "Detailed step instruction",
-      "tip": "Optional cooking tip for this step"
-    }
-  ],
-  "nutrition": {
-    "calories": "calories per serving",
-    "protein": "grams",
-    "carbs": "grams",
-    "fat": "grams"
-  },
-  "tips": [
-    "General cooking tip 1",
-    "General cooking tip 2",
-    "General cooking tip 3"
-  ],
-  "substitutions": [
-    {
-      "original": "ingredient name",
-      "alternatives": ["substitute 1", "substitute 2"]
+      "title": "Recipe Name",
+      "description": "Short description",
+      "cuisine": "Indian",
+      "category": "Dinner",
+      "prepTime": 15,
+      "cookTime": 30,
+      "difficulty": "Easy",
+      "ingredientsUsed": [
+        "Chicken",
+        "Butter",
+        "Tomato"
+      ]
     }
   ]
 }
 
-IMPORTANT RULES FOR CATEGORY:
-- Breakfast items (pancakes, eggs, cereal, etc.) → "breakfast"
-- Main meals for midday (sandwiches, salads, pasta, etc.) → "lunch"
-- Main meals for evening (heavier dishes, roasts, etc.) → "dinner"
-- Light items between meals (chips, crackers, fruit, etc.) → "snack"
-- Sweet treats (cakes, cookies, ice cream, etc.) → "dessert"
-
-IMPORTANT RULES FOR CUISINE:
-- Use lowercase only
-- Pick the closest match from the allowed values
-- If uncertain, use "other"
-
-Guidelines:
-- Make ingredients realistic and commonly available
-- Instructions should be clear and beginner-friendly
-- Include 6-10 detailed steps
-- Provide practical cooking tips
-- Estimate realistic cooking times
-- Keep total instructions under 12 steps
+IMPORTANT:
+- Return exactly 5 recipes.
+- Do not include markdown.
+- Do not wrap the JSON inside \`\`\`.
+- Return ONLY the JSON object.
 `;
 
         const result = await model.generateContent(prompt);
@@ -162,10 +140,10 @@ Guidelines:
 
         return {
             success: true,
-            recipe: recipeSuggestions,
+            recipe: recipeSuggestions.recipes,
             ingredientsUsed: ingredients,
-            recommendationsLimits: isPro ? "Unlimited" : 5,
-            message: `Found${recipeSuggestions.length} recipes you can make! right Now.`
+            recommendationsLimit: isPro ? "Unlimited" : 5,
+            message: `Found${recipeSuggestions.recipes.length} recipes you can make! right Now.`
         }
     }
     catch (error) {
@@ -188,7 +166,7 @@ function normalizeTitle(title) {
 async function fetchRecipeImage(recipeName) {
     try {
         if (!UNSPLASH_ACCESS_KEY) {
-            console.Warn("UNSPLASH_ACCESS_KEY is not defined");
+            console.warn("UNSPLASH_ACCESS_KEY is not defined");
             return "";
         }
 
@@ -224,9 +202,12 @@ async function fetchRecipeImage(recipeName) {
 export async function getorGenerateRecipe(formData) {
     try {
         const user = await checkUser();
+
         if (!user) {
             throw new Error("User not authenticated");
         }
+
+        const isPro = user.subscriptionTier === "pro";
 
         const recipeName = formData.get("recipeName");
         if (!recipeName) {
@@ -351,25 +332,25 @@ Guidelines:
 - Keep total instructions under 12 steps
 `;
 
-const result = await model.generateContent(prompt);
-const response = await result.response;
-const text = response.text();
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-let recipeData;
-try {
-    const cleanText = text.replace(/```json\n?/g, "").replace(/\n?```/g, "").trim();
-    recipeData = JSON.parse(cleanText);
-} catch (error) {
-    console.error("Error parsing recipe data:", error);
-    throw new Error("Failed to generate recipe");
-}
+        let recipeData;
+        try {
+            const cleanText = text.replace(/```json\n?/g, "").replace(/\n?```/g, "").trim();
+            recipeData = JSON.parse(cleanText);
+        } catch (error) {
+            console.error("Error parsing recipe data:", error);
+            throw new Error("Failed to generate recipe");
+        }
 
-// forcefully set the title to the normalized title
-recipeData.title = normalizedTitle;
+        // forcefully set the title to the normalized title
+        recipeData.title = normalizedTitle;
 
-const category = recipeData.category.toLowerCase();
+        const category = recipeData.category.toLowerCase();
 
-const cuisine = recipeData.cuisine.toLowerCase();
+        const cuisine = recipeData.cuisine.toLowerCase();
 
 
         const validCuisines = [
@@ -398,51 +379,51 @@ const cuisine = recipeData.cuisine.toLowerCase();
         ];
 
         //step 3: fetch image from unsplash
-        const imageUrl = await fetchRecipeImage(normalizeTitle);
+        const imageUrl = await fetchRecipeImage(normalizedTitle);
 
         //step 4: save genrated recipe to database 
 
         const strapiRecipeData = {
-            data:{
-                title: normalizeTitle,
+            data: {
+                title: normalizedTitle,
                 description: recipeData.description,
                 cuisine,
                 category,
-                ingredients: recipeData.ingredients,
-                instructions: recipeData.instructions,
+                ingredient: recipeData.ingredients,
+                instruction: recipeData.instructions,
                 prepTime: Number(recipeData.prepTime),
                 cookTime: Number(recipeData.cookTime),
-                servings: Number(recipeData.servings),
-                nutrition:recipeData.nutrition,
+                serving: Number(recipeData.servings),
+                nutrition: recipeData.nutrition,
                 tips: recipeData.tips,
-                substitutions: recipeData.substitutions,
+                substitution: recipeData.substitutions,
                 imageUrl: imageUrl || "",
                 isPublic: true,
                 author: user.id,
             }
         }
 
-        const createRecipeResponse = await fetch(`${STRAPI_URL}/api/recipes`,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json",
-                Authorization:`Bearer ${STRAPI_API_TOKEN}`,
+        const createRecipeResponse = await fetch(`${STRAPI_URL}/api/recipes`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`,
             },
             body: JSON.stringify(strapiRecipeData),
         })
 
-        if(!createRecipeResponse.ok){
+        if (!createRecipeResponse.ok) {
             const errortext = await createRecipeResponse.text();
             console.error("Error creating recipe:", errortext);
             throw new Error("Failed to create recipe");
         }
         const createdRecipe = await createRecipeResponse.json();
 
-        return{
+        return {
             success: true,
-            recipe:{
+            recipe: {
                 ...recipeData,
-                title:normalizeTitle,
+                title: normalizedTitle,
                 category,
                 cuisine,
                 imageUrl: imageUrl || "",
@@ -450,7 +431,7 @@ const cuisine = recipeData.cuisine.toLowerCase();
             recipeId: createdRecipe.data.id,
             isSaved: false,
             fromDatabase: false,
-            recommendationsLimits : isPro ? "unlimited" : 5,
+            recommendationsLimit: isPro ? "unlimited" : 5,
             message: "Recipe created successfully!",
         }
     }
@@ -594,5 +575,44 @@ export async function removeRecipeFromCollection(formData) {
     } catch (error) {
         console.error("Error removing recipe:", error);
         throw new Error(error.message || "Failed to remove recipe");
+    }
+}
+
+export async function getSavedRecipes() {
+    try {
+        const user = await checkUser();
+        if (!user) {
+            throw new Error("User not authenticated");
+        }
+
+        // fetch saved recipes with populated recipe data
+        const response = await fetch(`${STRAPI_URL}/api/saved-recipes?filters[user][id][$eq]=${user.id}&populate[recipe][populate]=*&sort=savedAt:desc`, {
+            headers: {
+                Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+            },
+            cache: "no-store",
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch saved recipes");
+        }
+
+        const data = await response.json();
+
+        //extract recipes from saved-recipes realtions
+
+        const recipes = data.data
+            .map((savedRecipe) => savedRecipe.recipe)
+            .filter(Boolean); // remove any null recipe
+
+        return {
+            success: true,
+            recipes,
+            count: recipes.length,
+        };
+
+    } catch (error) {
+        console.error("Error fetching saved recipes:", error);
+        throw new Error(error.message || "Failed to fetch saved recipes");
     }
 }
