@@ -22,7 +22,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
-      <section className="pt-32 pb-20 px-4">
+      {/* <section className="pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
             <div className="flex-1 text-center md:text-left">
@@ -179,7 +179,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto">
           {user ? <PricingTable/> : null}
         </div>
-      </section >
+      </section > */}
     </div >
   );
 }
