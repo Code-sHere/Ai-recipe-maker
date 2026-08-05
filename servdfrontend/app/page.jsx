@@ -11,6 +11,7 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 import { SITE_STATS, FEATURES, HOW_IT_WORKS_STEPS } from "@/lib/data";
 
+export const dynamic = "force-static";
 
 export default async function Home() {
 
