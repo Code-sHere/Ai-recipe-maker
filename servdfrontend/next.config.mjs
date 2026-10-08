@@ -6,7 +6,7 @@ const __dirname = dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  outputFileTracingRoot: path.join(import.meta.dirname, "../.."),
+  outputFileTracingRoot: __dirname,
   serverExternalPackages: ["@arcjet/next"],
   logging: {
     serverFunctions: false,
