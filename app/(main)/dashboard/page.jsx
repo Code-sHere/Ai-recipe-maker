@@ -1,12 +1,13 @@
 import { getRecipeOfTheDay, getCategories, getAreas } from '@/actions/mealdb.actions'
 import React from 'react'
-import { ArrowRight, Badge, Flame, Globe } from 'lucide-react';
+import { ArrowRight, Flame, Globe } from 'lucide-react';
+import {Badge} from "@/components/ui/badge";
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { getCategoryEmoji, getCountryFlag } from '@/lib/data';
 
-const DashboardPage = async () => {
+export default async function DashboardPage() {
 
   const recipeData = await getRecipeOfTheDay();
   const categoriesData = await getCategories();
@@ -74,8 +75,25 @@ const DashboardPage = async () => {
                       {recipeOfTheDay.strMeal}
                     </h3>
                     <p className="text-stone-600 mb-6 line-clamp-3 font-light text-lg">
-                      {recipeOfTheDay.strInstructions?.substring(0, 150)}...
+                      {recipeOfTheDay.strInstructions?.substring(0, 200)}...
                     </p>
+
+                    {recipeOfTheDay.strTags && (
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {recipeOfTheDay.strTags
+                          .split(",")
+                          .slice(0, 3)
+                          .map((tag, i) => (
+                            <Badge
+                              key={i}
+                              variant="secondary"
+                              className="bg-stone-100 text-stone-600 border border-stone-200 font-mono text-xs uppercase"
+                            >
+                              {tag.trim()}
+                            </Badge>
+                          ))}
+                      </div>
+                    )}
 
                     <Button className="w-fit bg-orange-500 hover:bg-orange-700 text-white fon t-bold border-2 border-orange-700 px-6 py-5">
                       Start Cooking <ArrowRight className="w-5 h-5 ml-2" />
@@ -119,32 +137,30 @@ const DashboardPage = async () => {
         {/* Browse by Cuisine */}
 
         <section className="pb-12">
-            <div className="mb-8">
-              <h2 className="text-4xl md:text-5xl mb-4 font-serif font-bold text-stone-900 ">Explore World Cuisines</h2>
-              <p className='text-stone-700 text-2xl font-light '>Travel the globe through food.</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {areas.map((area)=>{
-                return(
-                  <Link key={area.strArea}
-                    href={`/recipes/cuisine/${area.strArea.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    <div className='bg-white p-5 border-2 border-stone-500 hover:border-orange-600 transition-all group cursor-pointer'>
-                      <div className='flex items-center gap-3'>
-                        <span className="text-3xl mb-3">{getCountryFlag(area.strArea)}</span>
-                        <span className="font-bold text-stone-900 group-hover:text-orange-600 transition-colors text-sm">{area.strArea}</span>
-                      </div>
+          <div className="mb-8">
+            <h2 className="text-4xl md:text-5xl mb-4 font-serif font-bold text-stone-900 ">Explore World Cuisines</h2>
+            <p className='text-stone-700 text-2xl font-light '>Travel the globe through food.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {areas.map((area) => {
+              return (
+                <Link key={area.strArea}
+                  href={`/recipes/cuisine/${area.strArea.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  <div className='bg-white p-5 border-2 border-stone-500 hover:border-orange-600 transition-all group cursor-pointer'>
+                    <div className='flex items-center gap-3'>
+                      <span className="text-3xl mb-3">{getCountryFlag(area.strArea)}</span>
+                      <span className="font-bold text-stone-900 group-hover:text-orange-600 transition-colors text-sm">{area.strArea}</span>
                     </div>
+                  </div>
 
-                  </Link>
-                )
-              })}
-            </div>
+                </Link>
+              )
+            })}
+          </div>
         </section>
 
       </div>
     </div>
   )
 }
-
-export default DashboardPage

@@ -8,17 +8,19 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { Star } from "lucide-react"
+import { Star } from "lucide-react";
 import { SITE_STATS, FEATURES, HOW_IT_WORKS_STEPS } from "@/lib/data";
 
 export default async function Home() {
 
   const { has } = await auth();
-  const subscriptionTier = has({ plan: "pro" }) ? "pro" : "free";
+  const user = await auth();
+  
+
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900">
-      <section className="pt-32 pb-20 px-4">
+     <section className="pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
             <div className="flex-1 text-center md:text-left">
@@ -42,6 +44,8 @@ export default async function Home() {
                   className="px-8 py-3 text-lg rounded-full"
                 >Start Cooking Free <ArrowRight className="ml-2 w-5 h-5" /></Button>
               </Link>
+
+
 
               <p className="mt-5 text-sm text-stone-500">
                 <span className="font-bold text-stone-900">10k+ Cooks</span>{" "}
@@ -142,38 +146,38 @@ export default async function Home() {
       </section>
       <section className="py-24 px-4 border-y-2 border-stone-200 bg-stone-900 text-stone-50">
         <div className="max-w-5xl mx-auto">
-            <h2 className="text-5xl md:text-6xl font-bold mb-16"> Cook in 3 Steps</h2>
-        </div> 
-            <div className="space-y-12  max-w-5xl mx-auto">
-              {HOW_IT_WORKS_STEPS.map((step, i)=>{
-                return(
-                  <div key={i}>
-                    <div className="flex gap-6 items-start">
-                      <Badge 
-                        variant="outline"
-                        className="text-6xl font-bold text-orange-500 border-none bg-transparent p-0 h-auto"
-                      >
-                        {step.step}
-                      </Badge>
-                      <div>
-                        <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
-                        <p className="text-lg text-stone-400 font-light">{step.desc}</p>
-                      </div>
-                      
-                    </div>
-                    {i< HOW_IT_WORKS_STEPS.length-1 && (
-                        <hr className="my-8 bg-stone-700 "/> 
-                      )}
+          <h2 className="text-5xl md:text-6xl font-bold mb-16"> Cook in 3 Steps</h2>
+        </div>
+        <div className="space-y-12  max-w-5xl mx-auto">
+          {HOW_IT_WORKS_STEPS.map((step, i) => {
+            return (
+              <div key={i}>
+                <div className="flex gap-6 items-start">
+                  <Badge
+                    variant="outline"
+                    className="text-6xl font-bold text-orange-500 border-none bg-transparent p-0 h-auto"
+                  >
+                    {step.step}
+                  </Badge>
+                  <div>
+                    <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
+                    <p className="text-lg text-stone-400 font-light">{step.desc}</p>
                   </div>
-                )
-              })}
-            </div>
+
+                </div>
+                {i < HOW_IT_WORKS_STEPS.length - 1 && (
+                  <hr className="my-8 bg-stone-700 " />
+                )}
+              </div>
+            )
+          })}
+        </div>
       </section>
       <section className="py-24 px-4">
         <div className="max-w-5xl mx-auto">
-          <PricingTable />
+          {user ? <PricingTable/> : null}
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 }
